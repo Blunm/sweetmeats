@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sweetmeats — Code Shortener</title>
+
+<style>
+:root {
+    --bg: #0d0b12;
+    --card: #17141e;
+    --card2: #1d1926;
+    --border: #302a3b;
+    --text: #f7f3ff;
+    --muted: #9d95aa;
+    --pink: #ff5fa2;
+    --purple: #9b6cff;
+    --green: #64e6a7;
+    --danger: #ff6b81;
+    --shadow: 0 20px 60px rgba(0,0,0,.35);
+}
+
+:root.light {
+    --bg: #f5f2f8;
+    --card: #ffffff;
+    --card2: #f0ecf5;
+    --border: #ddd5e7;
+    --text: #211c28;
+    --muted: #746b7f;
+    --pink: #ed4d91;
+    --purple: #8058e8;
+    --green: #249c67;
+    --danger: #dc4960;
+    --shadow: 0 20px 50px rgba(60,40,80,.12);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background:
+        radial-gradient(
+            circle at 20% 0%,
+            rgba(255,95,162,.12),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 85% 10%,
+            rgba(155,108,255,.12),
+            transparent 30%
+        ),
+        var(--bg);
+
+    color: var(--text);
+    transition: background .25s, color .25s;
+}
+
+button,
+select,
+textarea {
+    font: inherit;
+}
+
+button,
+select {
+    outline: none;
+}
+
+.app {
+    width: min(1450px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 22px 0 40px;
+}
+
+/* HEADER */
+
+header {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.logo {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--pink),
+            var(--purple)
+        );
+
+    color: white;
+    font-size: 21px;
+    font-weight: 900;
+
+    box-shadow:
+        0 8px 25px rgba(255,95,162,.2);
+}
+
+.brand-text h1 {
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: -.5px;
+}
+
+.brand-text p {
+    margin: 2px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* SELECT */
+
+select {
+    height: 40px;
+    padding: 0 34px 0 12px;
+
+    border: 1px solid var(--border);
+    border-radius: 11px;
+
+    background: var(--card);
+    color: var(--text);
+
+    cursor: pointer;
+}
+
+/* LIVE TOGGLE */
+
+.live-toggle {
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 0 11px;
+
+    border: 1px solid var(--border);
+    border-radius: 11px;
+
+    background: var(--card);
+    color: var(--text);
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: .2s;
+}
+
+.live-toggle:has(input:checked) .live-dot {
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+}
+
+.switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    display: block;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+
+    border-radius: 20px;
+
+    background: #3a3745;
+
+    cursor: pointer;
+    transition: .2s;
+}
+
+.slider::before {
+    content: "";
+
+    position: absolute;
+
+    width: 14px;
+    height: 14px;
+
+    left: 3px;
+    top: 3px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    transition: .2s;
+}
+
+.switch input:checked + .slider {
+    background:
+        linear-gradient(
+            135deg,
+            var(--pink),
+            var(--purple)
+        );
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(16px);
+}
+
+/* THEME */
+
+#theme {
+    width: 40px;
+    height: 40px;
+
+    border: 1px solid var(--border);
+    border-radius: 11px;
+
+    background: var(--card);
+    color: var(--text);
+
+    cursor: pointer;
+
+    font-size: 17px;
+
+    transition:
+        transform .15s,
+        border-color .2s;
+}
+
+#theme:hover {
+    transform: translateY(-1px);
+    border-color: var(--purple);
+}
+
+/* MAIN */
+
+.main-card {
+    background: rgba(23,20,30,.82);
+
+    border: 1px solid var(--border);
+    border-radius: 20px;
+
+    box-shadow: var(--shadow);
+
+    overflow: hidden;
+
+    backdrop-filter: blur(16px);
+}
+
+:root.light .main-card {
+    background: rgba(255,255,255,.86);
+}
+
+/* TOOLBAR */
+
+.toolbar {
+    min-height: 66px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    padding: 12px 14px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.toolbar-left,
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* BUTTONS */
+
+.btn {
+    height: 40px;
+
+    padding: 0 14px;
+
+    border: 1px solid var(--border);
+    border-radius: 11px;
+
+    background: var(--card);
+    color: var(--text);
+
+    cursor: pointer;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    transition:
+        transform .15s,
+        border-color .2s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--purple);
+}
+
+.btn.primary {
+    border: none;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--pink),
+            var(--purple)
+        );
+
+    box-shadow:
+        0 8px 22px rgba(155,108,255,.18);
+}
+
+.btn.danger:hover {
+    border-color: var(--danger);
+}
+
+/* EDITOR */
+
+.editor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 620px;
+}
+
+.panel {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel + .panel {
+    border-left: 1px solid var(--border);
+}
+
+.panel-header {
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 16px;
+
+    border-bottom: 1px solid var(--border);
+
+    background: var(--card2);
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.panel-icon {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--pink),
+            var(--purple)
+        );
+}
+
+.panel-status {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* TEXTAREA */
+
+textarea {
+    flex: 1;
+
+    width: 100%;
+    min-height: 570px;
+
+    resize: none;
+
+    border: 0;
+    outline: 0;
+
+    padding: 20px;
+
+    background: transparent;
+    color: var(--text);
+
+    font-family:
+        "Cascadia Code",
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        monospace;
+
+    font-size: 13px;
+    line-height: 1.65;
+
+    tab-size: 2;
+
+    overflow: auto;
+
+    white-space: pre;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+textarea::placeholder {
+    color: var(--muted);
+    opacity: .65;
+}
+
+textarea:focus {
+    background: rgba(155,108,255,.025);
+}
+
+/* FOOTER */
+
+.footer {
+    min-height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 0 16px;
+
+    border-top: 1px solid var(--border);
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+.stats {
+    display: flex;
+    gap: 15px;
+}
+
+.stats span {
+    color: var(--text);
+    font-weight: 800;
+}
+
+/* TOAST */
+
+.toast {
+    position: fixed;
+
+    left: 50%;
+    bottom: 25px;
+
+    transform: translate(-50%, 20px);
+
+    padding: 11px 15px;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    background: var(--card);
+    color: var(--text);
+
+    box-shadow: var(--shadow);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition:
+        opacity .2s,
+        transform .2s;
+
+    z-index: 100;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* MOBILE */
+
+@media (max-width: 850px) {
+
+    .app {
+        width: min(100% - 18px, 1450px);
+        padding-top: 10px;
+    }
+
+    header {
+        height: auto;
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .editor-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .panel + .panel {
+        border-left: 0;
+        border-top: 1px solid var(--border);
+    }
+
+    textarea {
+        min-height: 400px;
+    }
+
+    .toolbar {
+        flex-wrap: wrap;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 560px) {
+
+    .brand-text p {
+        display: none;
+    }
+
+    .brand-text h1 {
+        font-size: 17px;
+    }
+
+    .logo {
+        width: 38px;
+        height: 38px;
+    }
+
+    .header-actions {
+        gap: 5px;
+    }
+
+    select,
+    #theme,
+    .live-toggle {
+        height: 36px;
+    }
+
+    .toolbar-right {
+        width: 100%;
+    }
+
+    .toolbar-right .btn {
+        flex: 1;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <header>
+
+        <div class="brand">
+
+            <div class="logo">
+                S
+            </div>
+
+            <div class="brand-text">
+                <h1>Sweetmeats</h1>
+                <p>Fast, clean code shortening</p>
+            </div>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <div class="live-toggle">
+
+                <span class="live-dot"></span>
+
+                <span>Live</span>
+
+                <label class="switch">
+
+                    <input
+                        type="checkbox"
+                        id="liveShorten"
+                    >
+
+                    <span class="slider"></span>
+
+                </label>
+
+            </div>
+
+
+            <select id="type">
+
+                <option value="auto">
+                    Auto Detect
+                </option>
+
+                <option value="html">
+                    HTML
+                </option>
+
+                <option value="css">
+                    CSS
+                </option>
+
+                <option value="js">
+                    JavaScript
+                </option>
+
+                <option value="json">
+                    JSON
+                </option>
+
+            </select>
+
+
+            <button
+                id="theme"
+                title="Toggle theme"
+            >
+                ☾
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="main-card">
+
+        <div class="toolbar">
+
+            <div class="toolbar-left">
+
+                <span class="toolbar-label">
+                    Minify your code instantly
+                </span>
+
+            </div>
+
+
+            <div class="toolbar-right">
+
+                <button
+                    class="btn danger"
+                    id="clear"
+                >
+                    Clear
+                </button>
+
+                <button
+                    class="btn"
+                    id="copy"
+                >
+                    Copy
+                </button>
+
+                <button
+                    class="btn"
+                    id="download"
+                >
+                    Download
+                </button>
+
+                <button
+                    class="btn primary"
+                    id="shortenBtn"
+                >
+                    Shorten Code
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="editor-grid">
+
+            <section class="panel">
+
+                <div class="panel-header">
+
+                    <div class="panel-title">
+
+                        <span class="panel-icon"></span>
+
+                        Original Code
+
+                    </div>
+
+
+                    <div
+                        class="panel-status"
+                        id="inputStatus"
+                    >
+                        Waiting
+                    </div>
+
+                </div>
+
+
+                <textarea
+                    id="input"
+                    spellcheck="false"
+                    placeholder="Paste your code here..."
+                ></textarea>
+
+            </section>
+
+
+            <section class="panel">
+
+                <div class="panel-header">
+
+                    <div class="panel-title">
+
+                        <span class="panel-icon"></span>
+
+                        Shortened Code
+
+                    </div>
+
+
+                    <div
+                        class="panel-status"
+                        id="outputStatus"
+                    >
+                        Waiting
+                    </div>
+
+                </div>
+
+
+                <textarea
+                    id="output"
+                    spellcheck="false"
+                    readonly
+                    placeholder="Your shortened code will appear here..."
+                ></textarea>
+
+            </section>
+
+        </div>
+
+
+        <div class="footer">
+
+            <div>
+                Sweetmeats
+            </div>
+
+
+            <div class="stats">
+
+                <div>
+                    Original:
+                    <span id="originalSize">
+                        0 B
+                    </span>
+                </div>
+
+                <div>
+                    Shortened:
+                    <span id="shortenedSize">
+                        0 B
+                    </span>
+                </div>
+
+                <div>
+                    Saved:
+                    <span id="saved">
+                        0%
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+<script>
+const input =
+    document.getElementById("input");
+
+const output =
+    document.getElementById("output");
+
+const type =
+    document.getElementById("type");
+
+const liveShorten =
+    document.getElementById("liveShorten");
+
+const shortenBtn =
+    document.getElementById("shortenBtn");
+
+const clearBtn =
+    document.getElementById("clear");
+
+const copyBtn =
+    document.getElementById("copy");
+
+const downloadBtn =
+    document.getElementById("download");
+
+const themeBtn =
+    document.getElementById("theme");
+
+const originalSize =
+    document.getElementById("originalSize");
+
+const shortenedSize =
+    document.getElementById("shortenedSize");
+
+const saved =
+    document.getElementById("saved");
+
+const inputStatus =
+    document.getElementById("inputStatus");
+
+const outputStatus =
+    document.getElementById("outputStatus");
+
+const toast =
+    document.getElementById("toast");
+
+
+let liveTimer;
+let toastTimer;
+
+
+/* -------------------------
+   SIZE
+------------------------- */
+
+function getBytes(text) {
+    return new Blob([text]).size;
+}
+
+
+function formatBytes(bytes) {
+
+    if (bytes < 1024) {
+        return bytes + " B";
+    }
+
+    if (bytes < 1024 * 1024) {
+        return (
+            (bytes / 1024).toFixed(1)
+            + " KB"
+        );
+    }
+
+    return (
+        (bytes / (1024 * 1024)).toFixed(1)
+        + " MB"
+    );
+}
+
+
+/* -------------------------
+   HTML
+------------------------- */
+
+function shortenHTML(code) {
+
+    return code
+        .replace(
+            /<!--[\s\S]*?-->/g,
+            ""
+        )
+        .replace(
+            />\s+</g,
+            "><"
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .replace(
+            /\s*([<>])\s*/g,
+            "$1"
+        )
+        .trim();
+}
+
+
+/* -------------------------
+   CSS
+------------------------- */
+
+function shortenCSS(code) {
+
+    return code
+        .replace(
+            /\/\*[\s\S]*?\*\//g,
+            ""
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .replace(
+            /\s*([{}:;,>+~])\s*/g,
+            "$1"
+        )
+        .replace(
+            /;}/g,
+            "}"
+        )
+        .trim();
+}
+
+
+/* -------------------------
+   JAVASCRIPT
+------------------------- */
+
+function shortenJS(code) {
+
+    return code
+        .replace(
+            /\/\*[\s\S]*?\*\//g,
+            ""
+        )
+        .replace(
+            /^\s*\/\/.*$/gm,
+            ""
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .replace(
+            /\s*([{}()[\];,:=+\-*\/<>])\s*/g,
+            "$1"
+        )
+        .trim();
+}
+
+
+/* -------------------------
+   JSON
+------------------------- */
+
+function shortenJSON(code) {
+
+    try {
+
+        return JSON.stringify(
+            JSON.parse(code)
+        );
+
+    } catch {
+
+        return code
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+}
+
+
+/* -------------------------
+   AUTO DETECT
+------------------------- */
+
+function detectType(code) {
+
+    const trimmed =
+        code.trim();
+
+
+    if (!trimmed) {
+        return "html";
+    }
+
+
+    if (
+        (
+            trimmed.startsWith("{") &&
+            trimmed.endsWith("}")
+        )
+        ||
+        (
+            trimmed.startsWith("[") &&
+            trimmed.endsWith("]")
+        )
+    ) {
+
+        try {
+
+            JSON.parse(trimmed);
+
+            return "json";
+
+        } catch {}
+
+    }
+
+
+    if (
+        /<(!DOCTYPE|html|head|body|div|span|script|style|main|section|p|a)\b/i
+            .test(trimmed)
+    ) {
+
+        return "html";
+
+    }
+
+
+    if (
+        /[.#a-zA-Z][\w-]*\s*\{[\s\S]*:[\s\S]*\}/
+            .test(trimmed)
+    ) {
+
+        return "css";
+
+    }
+
+
+    return "js";
+}
+
+
+/* -------------------------
+   SHORTEN
+------------------------- */
+
+function shorten(showToast = true) {
+
+    const code =
+        input.value;
+
+
+    if (!code.trim()) {
+
+        output.value = "";
+
+        updateStats();
+
+        inputStatus.textContent =
+            "Waiting";
+
+        outputStatus.textContent =
+            "Waiting";
+
+        return;
+    }
+
+
+    let selectedType =
+        type.value;
+
+
+    if (selectedType === "auto") {
+
+        selectedType =
+            detectType(code);
+
+    }
+
+
+    let result;
+
+
+    switch (selectedType) {
+
+        case "html":
+            result =
+                shortenHTML(code);
+            break;
+
+        case "css":
+            result =
+                shortenCSS(code);
+            break;
+
+        case "js":
+            result =
+                shortenJS(code);
+            break;
+
+        case "json":
+            result =
+                shortenJSON(code);
+            break;
+
+        default:
+            result = code;
+
+    }
+
+
+    output.value =
+        result;
+
+
+    updateStats();
+
+
+    inputStatus.textContent =
+        liveShorten.checked
+            ? "Live"
+            : "Processed";
+
+
+    outputStatus.textContent =
+        result === code
+            ? "No change"
+            : "Shortened";
+
+
+    if (showToast) {
+
+        showToastMessage(
+            "Code shortened ✨"
+        );
+
+    }
+
+}
+
+
+/* -------------------------
+   STATS
+------------------------- */
+
+function updateStats() {
+
+    const original =
+        getBytes(input.value);
+
+    const shortened =
+        getBytes(output.value);
+
+
+    originalSize.textContent =
+        formatBytes(original);
+
+    shortenedSize.textContent =
+        formatBytes(shortened);
+
+
+    if (original > 0) {
+
+        const percent =
+            Math.max(
+                0,
+                Math.round(
+                    (1 - shortened / original)
+                    * 100
+                )
+            );
+
+        saved.textContent =
+            percent + "%";
+
+    } else {
+
+        saved.textContent =
+            "0%";
+
+    }
+
+}
+
+
+/* -------------------------
+   TOAST
+------------------------- */
+
+function showToastMessage(message) {
+
+    toast.textContent =
+        message;
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(toastTimer);
+
+
+    toastTimer =
+        setTimeout(() => {
+
+            toast.classList.remove(
+                "show"
+            );
+
+        }, 1800);
+
+}
+
+
+/* -------------------------
+   LIVE INPUT
+------------------------- */
+
+input.addEventListener(
+    "input",
+    () => {
+
+        updateStats();
+
+
+        inputStatus.textContent =
+            input.value.trim()
+                ? "Editing"
+                : "Waiting";
+
+
+        if (!liveShorten.checked) {
+            return;
+        }
+
+
+        clearTimeout(
+            liveTimer
+        );
+
+
+        liveTimer =
+            setTimeout(() => {
+
+                shorten(false);
+
+            }, 120);
+
+    }
+);
+
+
+/* -------------------------
+   LIVE TOGGLE
+------------------------- */
+
+liveShorten.addEventListener(
+    "change",
+    () => {
+
+        if (liveShorten.checked) {
+
+            showToastMessage(
+                "Live shortening enabled ⚡"
+            );
+
+
+            if (input.value.trim()) {
+
+                shorten(false);
+
+            }
+
+        } else {
+
+            showToastMessage(
+                "Live shortening disabled"
+            );
+
+
+            inputStatus.textContent =
+                input.value.trim()
+                    ? "Editing"
+                    : "Waiting";
+
+        }
+
+    }
+);
+
+
+/* -------------------------
+   MANUAL BUTTON
+------------------------- */
+
+shortenBtn.addEventListener(
+    "click",
+    () => {
+
+        shorten(true);
+
+    }
+);
+
+
+/* -------------------------
+   TYPE CHANGE
+------------------------- */
+
+type.addEventListener(
+    "change",
+    () => {
+
+        if (
+            liveShorten.checked &&
+            input.value.trim()
+        ) {
+
+            shorten(false);
+
+        }
+
+    }
+);
+
+
+/* -------------------------
+   CLEAR
+------------------------- */
+
+clearBtn.addEventListener(
+    "click",
+    () => {
+
+        input.value = "";
+
+        output.value = "";
+
+        updateStats();
+
+
+        inputStatus.textContent =
+            "Waiting";
+
+        outputStatus.textContent =
+            "Waiting";
+
+
+        showToastMessage(
+            "Cleared"
+        );
+
+
+        input.focus();
+
+    }
+);
+
+
+/* -------------------------
+   COPY
+------------------------- */
+
+copyBtn.addEventListener(
+    "click",
+    async () => {
+
+        if (!output.value) {
+
+            showToastMessage(
+                "Nothing to copy"
+            );
+
+            return;
+        }
+
+
+        try {
+
+            await navigator.clipboard.writeText(
+                output.value
+            );
+
+            showToastMessage(
+                "Copied to clipboard ✓"
+            );
+
+        } catch {
+
+            output.select();
+
+            document.execCommand(
+                "copy"
+            );
+
+            showToastMessage(
+                "Copied to clipboard ✓"
+            );
+
+        }
+
+    }
+);
+
+
+/* -------------------------
+   DOWNLOAD
+------------------------- */
+
+downloadBtn.addEventListener(
+    "click",
+    () => {
+
+        if (!output.value) {
+
+            showToastMessage(
+                "Nothing to download"
+            );
+
+            return;
+        }
+
+
+        const selected =
+            type.value === "auto"
+                ? detectType(input.value)
+                : type.value;
+
+
+        const extensions = {
+            html: "html",
+            css: "css",
+            js: "js",
+            json: "json"
+        };
+
+
+        const extension =
+            extensions[selected] || "txt";
+
+
+        const blob =
+            new Blob(
+                [output.value],
+                {
+                    type:
+                        "text/plain;charset=utf-8"
+                }
+            );
+
+
+        const url =
+            URL.createObjectURL(blob);
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href =
+            url;
+
+        link.download =
+            "sweetmeats-shortened."
+            + extension;
+
+
+        document.body.appendChild(
+            link
+        );
+
+        link.click();
+
+        link.remove();
+
+
+        URL.revokeObjectURL(
+            url
+        );
+
+
+        showToastMessage(
+            "Downloaded ✓"
+        );
+
+    }
+);
+
+
+/* -------------------------
+   THEME
+------------------------- */
+
+themeBtn.addEventListener(
+    "click",
+    () => {
+
+        document.documentElement
+            .classList.toggle("light");
+
+
+        const light =
+            document.documentElement
+                .classList
+                .contains("light");
+
+
+        themeBtn.textContent =
+            light
+                ? "☀"
+                : "☾";
+
+
+        localStorage.setItem(
+            "sweetmeats-theme",
+            light
+                ? "light"
+                : "dark"
+        );
+
+    }
+);
+
+
+/* -------------------------
+   LOAD THEME
+------------------------- */
+
+if (
+    localStorage.getItem(
+        "sweetmeats-theme"
+    ) === "light"
+) {
+
+    document.documentElement
+        .classList
+        .add("light");
+
+
+    themeBtn.textContent =
+        "☀";
+
+}
+
+
+/* -------------------------
+   CTRL + ENTER
+------------------------- */
+
+input.addEventListener(
+    "keydown",
+    (event) => {
+
+        if (
+            event.ctrlKey &&
+            event.key === "Enter"
+        ) {
+
+            event.preventDefault();
+
+            shorten(true);
+
+        }
+
+    }
+);
+
+
+/* -------------------------
+   TAB SUPPORT
+------------------------- */
+
+input.addEventListener(
+    "keydown",
+    (event) => {
+
+        if (event.key !== "Tab") {
+            return;
+        }
+
+
+        event.preventDefault();
+
+
+        const start =
+            input.selectionStart;
+
+        const end =
+            input.selectionEnd;
+
+
+        input.value =
+            input.value.substring(
+                0,
+                start
+            )
+            +
+            "  "
+            +
+            input.value.substring(
+                end
+            );
+
+
+        input.selectionStart =
+            input.selectionEnd =
+                start + 2;
+
+
+        input.dispatchEvent(
+            new Event("input")
+        );
+
+    }
+);
+
+
+/* -------------------------
+   INITIALIZE
+------------------------- */
+
+updateStats();
+
+</script>
+
+</body>
+</html>
